@@ -4,7 +4,7 @@
 
 const CONFIG = {
     // Your Google Apps Script Web App URL
-    GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwypCmWtoaQszCtDOkdsY02ZJAc9ul5eoe6oQc1rhdDjz4D7LkTMdKxPhPaugk_w7U/exec',
+    GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycby69Ngv7yflRCqkOOtRznWOtzcJDMLltSFGkdWMZmTyYYiYvBNZrIkmffXpcdQTrVqk/exec',
     
     // Polling configuration
     HEARTBEAT_INTERVAL: 15000, // 15 seconds
