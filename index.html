@@ -692,8 +692,7 @@
     <div class="loading" id="loading"><div class="spinner"></div></div>
 
     <script src="config.js"></script>
-<script>
-
+    <script>
         function generateUserId() {
             const id = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             localStorage.setItem('userId', id);
@@ -756,21 +755,22 @@
                 await this.testConnection();
             }
 
+
             async testConnection() {
-                try {
-                    const response = await fetch(CONFIG.GOOGLE_SCRIPT_URL + '?action=testConnection');
-                    const data = await response.json();
-                    if (data.status === 'success') {
-                        this.updateSyncStatus('connected');
-                        this.showToast('Connected to server', 'success');
-                    } else {
-                        throw new Error('Connection failed');
-                    }
-                } catch (error) {
-                    this.updateSyncStatus('disconnected');
-                    this.showToast('Working offline - data will sync when connected', 'warning');
-                }
-            }
+  try {
+    const data = await callAppsScript('testConnection');
+    if (data.status === 'success') {
+      this.updateSyncStatus('connected');
+      this.showToast('Connected to server', 'success');
+    } else {
+      throw new Error('Connection failed');
+    }
+  } catch (error) {
+    this.updateSyncStatus('disconnected');
+    this.showToast('Working offline - data will sync when connected', 'warning');
+  }
+}
+
 
             startHeartbeat() {
                 this.sendHeartbeat();
@@ -778,55 +778,47 @@
             }
 
             async sendHeartbeat() {
-                try {
-                    const response = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            action: 'heartbeat',
-                            userId: CONFIG.USER_ID,
-                            route: this.currentRoute,
-                            module: 'inventory',
-                            userName: 'Inventory User'
-                        })
-                    });
+  try {
+    const data = await callAppsScript('heartbeat', {
+      userId: CONFIG.USER_ID,
+      route: this.currentRoute,
+      module: 'inventory',
+      userName: 'Inventory User'
+    });
+    if (data.status === 'success') {
+      this.activeUsers = data.data.activeUsers;
+      document.getElementById('activeUsers').textContent = `${this.activeUsers} users`;
+    }
+  } catch (error) {
+    console.error('Heartbeat error:', error);
+  }
+}
+
                     
-                    const data = await response.json();
-                    if (data.status === 'success') {
-                        this.activeUsers = data.data.activeUsers;
-                        document.getElementById('activeUsers').textContent = `${this.activeUsers} users`;
-                    }
-                } catch (error) {
-                    console.error('Heartbeat error:', error);
-                }
-            }
+            // Remove duplicate/erroneous code block (already handled above)
 
             startPolling() {
                 this.pollingTimer = setInterval(() => this.pollForUpdates(), CONFIG.POLLING_INTERVAL);
             }
 
             async pollForUpdates() {
-                if (!this.currentRoute) return;
-                
-                try {
-                    const response = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            action: 'getRealTimeData',
-                            route: this.currentRoute,
-                            timestamp: this.lastServerTimestamp,
-                            date: document.getElementById('inventoryDate').value
-                        })
-                    });
-                    const data = await response.json();
-                    if (data.status === 'success') {
-                        this.processUpdates(data.data);
-                    }
-                } catch (error) {
-                    console.error('Polling error:', error);
-                }
-            }
+  if (!this.currentRoute) return;
+
+  try {
+    const data = await callAppsScript('getRealTimeData', {
+      route: this.currentRoute,
+      timestamp: this.lastServerTimestamp,
+      date: document.getElementById('inventoryDate').value
+    });
+
+    if (data.status === 'success') {
+      this.processUpdates(data.data);
+    }
+  } catch (error) {
+    console.error('Polling error:', error);
+  }
+}
+
 
             processUpdates(data) {
                 // Update locked items
@@ -868,47 +860,37 @@
                 });
             }
 
-            async lockItem(itemCode) {
-                try {
-                    const response = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            action: 'lockItem',
-                            route: this.currentRoute,
-                            itemCode: itemCode,
-                            userId: CONFIG.USER_ID
-                        })
-                    });
-                    
-                    const data = await response.json();
-                    if (data.status === 'error') {
-                        this.showToast('Item is being edited by another user', 'warning');
-                        return false;
-                    }
-                    return true;
-                } catch (error) {
-                    console.error('Lock error:', error);
-                    return true; // Allow editing in offline mode
-                }
-            }
+           async lockItem(itemCode) {
+  try {
+    const data = await callAppsScript('lockItem', {
+      route: this.currentRoute,
+      itemCode: itemCode,
+      userId: CONFIG.USER_ID
+    });
+    if (data.status === 'error') {
+      this.showToast('Item is being edited by another user', 'warning');
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error('Lock error:', error);
+    return true; // allow editing in offline mode
+  }
+}
 
-            async unlockItem(itemCode) {
-                try {
-                    await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            action: 'unlockItem',
-                            route: this.currentRoute,
-                            itemCode: itemCode,
-                            userId: CONFIG.USER_ID
-                        })
-                    });
-                } catch (error) {
-                    console.error('Unlock error:', error);
-                }
-            }
+
+           async unlockItem(itemCode) {
+  try {
+    await callAppsScript('unlockItem', {
+      route: this.currentRoute,
+      itemCode: itemCode,
+      userId: CONFIG.USER_ID
+    });
+  } catch (error) {
+    console.error('Unlock error:', error);
+  }
+}
+
 
             selectRoute(route, btn) {
                 this.currentRoute = route;
@@ -1223,39 +1205,34 @@
             }
 
             async saveData() {
-                if (!this.currentRoute) {
-                    this.showToast('Please select a route first', 'error');
-                    return;
-                }
-                
-                this.showLoading(true);
-                const data = this.collectData();
-                
-                try {
-                    const response = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            action: 'saveInventoryData',
-                            route: this.currentRoute,
-                            date: document.getElementById('inventoryDate').value,
-                            items: data.items
-                        })
-                    });
-                    
-                    const result = await response.json();
-                    if (result.status === 'success') {
-                        this.showToast('Data saved successfully!', 'success');
-                        localStorage.setItem(`lastEntry_${this.currentRoute}`, JSON.stringify(data));
-                    } else {
-                        throw new Error(result.data || 'Save failed');
-                    }
-                } catch (error) {
-                    this.showToast('Error saving data: ' + error.message, 'error');
-                } finally {
-                    this.showLoading(false);
-                }
-            }
+  if (!this.currentRoute) {
+    this.showToast('Please select a route first', 'error');
+    return;
+  }
+
+  this.showLoading(true);
+  const dataToSave = this.collectData();
+
+  try {
+    const result = await callAppsScript('saveInventoryData', {
+      route: this.currentRoute,
+      date: document.getElementById('inventoryDate').value,
+      items: dataToSave.items
+    });
+
+    if (result.status === 'success') {
+      this.showToast('Data saved successfully!', 'success');
+      localStorage.setItem(`lastEntry_${this.currentRoute}`, JSON.stringify(dataToSave));
+    } else {
+      throw new Error(result.data || 'Save failed');
+    }
+  } catch (error) {
+    this.showToast('Error saving data: ' + error.message, 'error');
+  } finally {
+    this.showLoading(false);
+  }
+}
+
 
             async submitData() {
                 if (!confirm('Submit and lock this data? This action cannot be undone.')) return;
@@ -1394,6 +1371,27 @@
         // Initialize app
         const app = new InventoryApp();
         window.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
+    <script>
+      // ---- Apps Script simple-request helper (prevents CORS preflight) ----
+      async function callAppsScript(action, payload = {}) {
+        const params = new URLSearchParams();
+        params.append('action', action);
+        params.append('payload', JSON.stringify(payload));
+
+        const res = await fetch(CONFIG.GOOGLE_SCRIPT_URL /* must be /exec */, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: params.toString()
+        });
+
+        // Apps Script returns JSON text
+        if (!res.ok) {
+          const text = await res.text().catch(() => '');
+          throw new Error(`Apps Script error (${res.status}): ${text}`);
+        }
+        return res.json(); // { status, success, data, timestamp }
+      }
     </script>
 </body>
 </html>
