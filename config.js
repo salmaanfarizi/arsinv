@@ -1,4 +1,3 @@
-
 // config.js for Inventory Tracking App
 // Replace YOUR_DEPLOYMENT_ID with your actual Google Apps Script deployment ID
 
