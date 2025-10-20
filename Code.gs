@@ -744,7 +744,16 @@ function migrateAllInventorySheets(){
 
 /* Menu */
 function onOpen(){
-  SpreadsheetApp.getUi().createMenu('Utilities')
-    .addItem('Migrate inventory sheets (safe backup)', 'migrateAllInventorySheets')
+  SpreadsheetApp.getUi().createMenu('🛠️ Utilities')
+    .addItem('🔧 Migrate inventory sheets (safe backup)', 'migrateAllInventorySheets')
+    .addSeparator()
+    .addSubMenu(SpreadsheetApp.getUi().createMenu('📊 Cleanup Tools')
+      .addItem('Consolidate SALES Sheets', 'consolidateSalesSheets')
+      .addItem('Delete Empty Sheets', 'deleteEmptySheets')
+      .addItem('Create Backup', 'createManualBackup')
+      .addItem('Generate Summary Report', 'generateSummaryReport')
+      .addSeparator()
+      .addItem('Full Cleanup (Recommended)', 'fullCleanup')
+      .addItem('Optimize Spreadsheet', 'optimizeSpreadsheet'))
     .addToUi();
 }

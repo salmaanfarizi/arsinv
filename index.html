@@ -158,12 +158,6 @@
 
   <script src="config.js"></script>
   <script>
-    function generateUserId(){
-      const id='user_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);
-      localStorage.setItem('userId',id);
-      return id;
-    }
-
     class InventoryApp{
       constructor(){
         this.currentRoute='';
@@ -517,7 +511,7 @@
         const addTransferBase=this.toBaseUnits(addTransfer,addTransferUnit,item);
         const systemBase=this.toBaseUnits(system,systemUnit,item);
 
-        const diff=systemBase-physicalBase;
+        const diff=(physicalBase + transferBase + addTransferBase) - systemBase;
 
         // Write totals to UI
         const set=(id,v)=>{const el=document.getElementById(id); if(el) el.textContent=String(v)};
@@ -622,7 +616,7 @@
               const transferBase=this.toBaseUnits(transfer,transUnit,item);
               const addTransferBase=this.toBaseUnits(addTransfer,addUnit,item);
               const systemBase=this.toBaseUnits(system,sysUnit,item);
-              const difference=systemBase-physicalBase;
+              const difference=(physicalBase + transferBase + addTransferBase) - systemBase;
 
               items.push({
                 category,
