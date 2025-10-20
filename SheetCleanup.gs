@@ -86,8 +86,18 @@ function fullCleanup() {
     );
 
   } catch (error) {
-    ui.alert('Error during cleanup: ' + error.message + '\n\nPlease check the backup and try again.');
     Logger.log('Cleanup error: ' + error);
+    Logger.log('Error stack: ' + error.stack);
+    ui.alert(
+      'Error During Cleanup',
+      'An error occurred:\n\n' + error.message + '\n\n' +
+      'Details have been logged. Your data is safe.\n' +
+      'Check:\n' +
+      '1. Apps Script logs (View > Logs)\n' +
+      '2. Your backup in Google Drive\n\n' +
+      'Try running individual cleanup steps instead of Full Cleanup.',
+      ui.ButtonSet.OK
+    );
   }
 }
 
@@ -300,16 +310,16 @@ function generateSummaryReport() {
   summarySheet.appendRow(['']);
 
   const allSheets = ss.getSheets();
-  summarySheet.appendRow(['Sheet Name', 'Total Rows', 'Total Columns', 'Last Modified', 'Size']);
+  summarySheet.appendRow(['Sheet Name', 'Total Rows', 'Total Columns', 'Data Size', 'Status']);
 
   allSheets.forEach(sheet => {
     const name = sheet.getName();
     const rows = sheet.getLastRow();
     const cols = sheet.getLastColumn();
-    const lastEdit = sheet.getRange(1, 1).getLastEditTime() || 'Unknown';
     const dataSize = rows * cols;
+    const status = rows <= 1 ? 'Empty' : 'Active';
 
-    summarySheet.appendRow([name, rows, cols, lastEdit, dataSize]);
+    summarySheet.appendRow([name, rows, cols, dataSize, status]);
   });
 
   summarySheet.appendRow(['']);
