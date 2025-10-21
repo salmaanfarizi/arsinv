@@ -2,13 +2,13 @@
 // Replace YOUR_DEPLOYMENT_ID with your actual Google Apps Script deployment ID
 
 const CONFIG = {
-    // Your Google Apps Script Web App URL
-    GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycby69Ngv7yflRCqkOOtRznWOtzcJDMLltSFGkdWMZmTyYYiYvBNZrIkmffXpcdQTrVqk/exec',
-    
+    // Netlify function proxy URL (avoids CORS issues)
+    GOOGLE_SCRIPT_URL: '/.netlify/functions/proxy',
+
     // Polling configuration
     HEARTBEAT_INTERVAL: 15000, // 15 seconds
     POLLING_INTERVAL: 5000,    // 5 seconds
-    
+
     // User identification
     USER_ID: localStorage.getItem('userId') || generateUserId()
 };

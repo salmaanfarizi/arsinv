@@ -695,21 +695,20 @@
   </script>
 
   <script>
-    // ---- Apps Script simple-request helper (keeps it as form POST to avoid preflight) ----
+    // ---- Apps Script proxy helper (sends JSON to Netlify function) ----
     async function callAppsScript(action,payload={}){
-      const params=new URLSearchParams();
-      params.append('action',action);
-      params.append('payload',JSON.stringify(payload));
-
       const res=await fetch(CONFIG.GOOGLE_SCRIPT_URL,{
         method:'POST',
-        headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
-        body:params.toString()
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          action: action,
+          payload: payload
+        })
       });
 
       if(!res.ok){
         const text=await res.text().catch(()=> '');
-        throw new Error(`Apps Script error (${res.status}): ${text}`);
+        throw new Error(`Proxy error (${res.status}): ${text}`);
       }
       return res.json(); // { status, success, data, timestamp }
     }
