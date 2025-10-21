@@ -32,11 +32,19 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    html {
+      height: 100%;
+      overflow: hidden;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
+      height: 100%;
       overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
     }
 
     /* ===== LAYOUT ===== */
@@ -273,6 +281,10 @@
       flex: 1;
       padding: 20px;
       overflow-y: auto;
+      overflow-x: hidden;
+      min-height: 300px;
+      padding-bottom: 100px; /* Extra padding for bottom buttons */
+      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
     }
 
     /* ===== CATEGORY ACCORDION ===== */
@@ -702,6 +714,21 @@
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
+      /* Fix scrolling issue on mobile */
+      .app-header {
+        position: relative; /* Change from sticky to relative */
+      }
+
+      .main-content {
+        min-height: calc(100vh - 600px); /* Ensure enough scrollable space */
+        padding: 15px;
+        padding-bottom: 120px; /* More space for bottom buttons */
+      }
+
+      .bottom-actions {
+        position: fixed; /* Change to fixed for better mobile UX */
+      }
+
       .input-grid {
         grid-template-columns: 1fr;
       }
@@ -719,7 +746,33 @@
       }
 
       .header-top {
-        padding: 12px 15px;
+        padding: 10px 15px; /* Reduce padding */
+      }
+
+      .route-section {
+        padding: 10px 15px; /* Reduce padding */
+      }
+
+      .date-controls {
+        padding: 10px 15px; /* Reduce padding */
+      }
+
+      .action-bar {
+        padding: 10px 15px; /* Reduce padding */
+      }
+
+      .category-card {
+        margin-bottom: 15px; /* Reduce margin */
+      }
+
+      .route-btn {
+        padding: 10px 15px; /* Smaller buttons */
+        font-size: 13px;
+      }
+
+      .action-btn {
+        padding: 8px 12px; /* Smaller action buttons */
+        font-size: 12px;
       }
     }
 
